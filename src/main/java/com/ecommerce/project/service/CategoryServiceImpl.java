@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.beans.factory.config.YamlProcessor.MatchStatus.NOT_FOUND;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -41,15 +40,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category updateCategory(Category category, Long categoryID) {
-        Optional<Category> optional = Optional.of((Category) categories.stream()
+        Category existingCategory = categories.stream()
                 .filter(c -> c.getCategoryId().equals(categoryID))
-                .findFirst().get());
-        if (optional.isPresent()) {
-            Category existingCategory = optional.get();
-            existingCategory.setCategoryName(category.getCategoryName());
-            return existingCategory;
-        } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
-
-
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
+        
+        existingCategory.setCategoryName(category.getCategoryName());
+        return existingCategory;
     }
 }
