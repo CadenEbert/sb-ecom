@@ -1,15 +1,20 @@
 package com.ecommerce.project.service;
 
 import com.ecommerce.project.model.Category;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static org.springframework.beans.factory.config.YamlProcessor.MatchStatus.NOT_FOUND;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
-
     private List<Category> categories = new ArrayList<>();
+    private Long nextId = 1L;
 
     @Override
     public List<Category> getAllCategories() {
@@ -18,7 +23,33 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void createCategory(Category category) {
+        category.setCategoryId(nextId++);
         categories.add(category);
+
+    }
+
+    @Override
+    public String deleteCategory(Long categoryID) {
+        Category category = (Category) categories.stream()
+                .filter(c -> c.getCategoryId().equals(categoryID))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
+
+        categories.remove(category);
+        return "Category with Id: " + categoryID + " has been deleted";
+    }
+
+    @Override
+    public Category updateCategory(Category category, Long categoryID) {
+        Optional<Category> optional = Optional.of((Category) categories.stream()
+                .filter(c -> c.getCategoryId().equals(categoryID))
+                .findFirst().get());
+        if (optional.isPresent()) {
+            Category existingCategory = optional.get();
+            existingCategory.setCategoryName(category.getCategoryName());
+            return existingCategory;
+        } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
+
 
     }
 }
