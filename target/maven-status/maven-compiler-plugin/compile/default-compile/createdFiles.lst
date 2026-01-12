@@ -1,0 +1,3 @@
+com\ecommerce\project\model\Category.class
+com\ecommerce\project\controller\CategoryController.class
+com\ecommerce\project\SbEcomApplication.class
