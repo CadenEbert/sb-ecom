@@ -1,11 +1,5 @@
 package com.ecommerce.project.service;
 
-import com.ecommerce.project.exceptions.ResourceNotFoundException;
-import com.ecommerce.project.model.Product;
-import com.ecommerce.project.payload.ProductDTO;
-import com.ecommerce.project.repositories.ProductRepository;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,14 +14,17 @@ public class FileServiceImpl implements FileService {
 
 
 
-    private String uploadImage(String path, MultipartFile file) throws IOException {
+    public String uploadImage(String path, MultipartFile file) throws IOException {
         String originalFileName = file.getOriginalFilename();
+        if (originalFileName == null || originalFileName.isEmpty()) {
+            throw new IOException("Invalid file name");
+        }
 
         String randomId = UUID.randomUUID().toString();
 
         String fileName = randomId.concat(originalFileName.substring(originalFileName.lastIndexOf('.')));
 
-        String filePath = path + File.pathSeparator + fileName;
+        String filePath = path + File.separator + fileName;
         File folder = new File(path);
         if (!folder.exists()) {
             folder.mkdirs();
